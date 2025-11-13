@@ -59,38 +59,38 @@ contactForm.addEventListener('submit', function(e) {
     submitButton.disabled = true;
     
     // Get form data
-    const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        subject: document.getElementById('subject').value,
-        message: document.getElementById('message').value
-    };
+    const formData = new FormData();
+    formData.append('name', document.getElementById('name').value);
+    formData.append('email', document.getElementById('email').value);
+    formData.append('subject', document.getElementById('subject').value);
+    formData.append('message', document.getElementById('message').value);
+    formData.append('_to', 'christinakatherinelois@gmail.com');
     
-    // Simulate form submission (replace with actual email service)
-    setTimeout(() => {
-        // For demo purposes, we'll show success message
-        // In production, replace this with actual email service like EmailJS, Formspree, or Netlify Forms
-        showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
-        contactForm.reset();
-        
+    // Send email using Formspree
+    fetch('https://formspree.io/f/xpwzgqpd', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
+            contactForm.reset();
+        } else {
+            throw new Error('Network response was not ok');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to send message. Please try again later.', 'error');
+    })
+    .finally(() => {
         // Reset button state
         submitButton.textContent = originalText;
         submitButton.disabled = false;
-    }, 2000);
-    
-    // Alternative: Use EmailJS with proper configuration
-    // emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', formData)
-    //     .then(function(response) {
-    //         showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
-    //         contactForm.reset();
-    //     }, function(error) {
-    //         showNotification('Failed to send message. Please try again later.', 'error');
-    //     })
-    //     .finally(function() {
-    //         // Reset button state
-    //         submitButton.textContent = originalText;
-    //         submitButton.disabled = false;
-    //     });
+    });
 });
 
 // Notification system
@@ -207,138 +207,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Instagram Feed Simulation (Replace with actual Instagram API integration)
-function loadInstagramFeed() {
-    const instagramGrid = document.querySelector('.instagram-grid');
-    const placeholders = instagramGrid.querySelectorAll('.instagram-placeholder');
-    
-    // Simulate loading Instagram posts
-    placeholders.forEach((placeholder, index) => {
-        setTimeout(() => {
-            placeholder.innerHTML = `
-                <svg width="100%" height="100%" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="200" height="200" fill="#F5F5F0"/>
-                    <rect x="20" y="20" width="160" height="160" rx="10" fill="#E8E6E1"/>
-                    <circle cx="100" cy="80" r="20" fill="#D4D2CD"/>
-                    <rect x="60" y="120" width="80" height="40" rx="5" fill="#D4D2CD"/>
-                    <text x="100" y="185" text-anchor="middle" fill="#A8A6A1" font-family="Inter" font-size="10">Post ${index + 1}</text>
-                </svg>
-            `;
-            placeholder.style.cursor = 'pointer';
-            placeholder.addEventListener('click', () => {
-                window.open('https://www.instagram.com/christinaklois/', '_blank');
-            });
-        }, index * 200);
-    });
-}
-
 // Blog post navigation simulation
-function initializeBlogNavigation() {
-    const readMoreLinks = document.querySelectorAll('.read-more');
-    
-    readMoreLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const postCard = link.closest('.post-card');
-            const category = postCard.querySelector('.post-category').textContent;
-            
-            // Simulate navigation to blog post
-            showNotification(`Opening "${category}" blog post...`, 'success');
-            
-            // In a real implementation, you would navigate to the actual blog post
-            // window.location.href = `/blog/${postSlug}`;
-        });
-    });
-}
-
-// Category navigation
-function initializeCategoryNavigation() {
-    const categoryLinks = document.querySelectorAll('.nav-link');
-    
-    categoryLinks.forEach(link => {
-        if (link.getAttribute('href').startsWith('#') && 
-            ['#eating', '#wearing', '#family'].includes(link.getAttribute('href'))) {
-            
+    function initializeBlogNavigation() {
+        const readMoreLinks = document.querySelectorAll('.read-more');
+        
+        readMoreLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const category = link.textContent;
-                showCategoryPage(category);
+                const postCard = link.closest('.post-card');
+                const category = postCard.querySelector('.post-category').textContent;
+                
+                // Simulate navigation to blog post
+                showNotification(`Opening "${category}" blog post...`, 'success');
+                
+                // In a real implementation, you would navigate to the actual blog post
+                // window.location.href = `/blog/${postSlug}`;
             });
-        }
-    });
-}
-
-function showCategoryPage(category) {
-    // Simulate showing category-specific content
-    const heroTitle = document.querySelector('.hero-title');
-    const heroSubtitle = document.querySelector('.hero-subtitle');
-    const originalTitle = heroTitle.textContent;
-    const originalSubtitle = heroSubtitle.textContent;
-    
-    // Temporarily update hero section
-    heroTitle.textContent = category;
-    heroSubtitle.textContent = `Explore ${category.toLowerCase()} content`;
-    
-    // Scroll to featured posts
-    document.querySelector('.featured-posts').scrollIntoView({ behavior: 'smooth' });
-    
-    // Reset after 3 seconds (in real implementation, this would be a proper page)
-    setTimeout(() => {
-        heroTitle.textContent = originalTitle;
-        heroSubtitle.textContent = originalSubtitle;
-        showNotification(`In a full implementation, this would show ${category} posts`, 'success');
-    }, 3000);
-}
-
-// Ad space management
-function initializeAdSpace() {
-    const adSpace = document.getElementById('ad-space');
-    
-    // Hide ad space on mobile and tablet
-    function checkAdVisibility() {
-        if (window.innerWidth <= 1024) {
-            adSpace.style.display = 'none';
-        } else {
-            adSpace.style.display = 'flex';
-        }
+        });
     }
     
-    checkAdVisibility();
-    window.addEventListener('resize', checkAdVisibility);
-    
-    // Simulate ad loading
-    setTimeout(() => {
-        const adPlaceholder = adSpace.querySelector('.ad-placeholder');
-        adPlaceholder.innerHTML = `
-            <div style="text-align: center; padding: 1rem;">
-                <div style="background: #8b7355; color: white; padding: 0.5rem; border-radius: 3px; margin-bottom: 0.5rem; font-size: 0.7rem;">
-                    SPONSORED
-                </div>
-                <div style="font-size: 0.8rem; color: #5a5a5a;">
-                    Ad Space<br>Available
-                </div>
-            </div>
-        `;
-    }, 2000);
-}
-
-// Initialize all functionality when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    loadInstagramFeed();
-    initializeBlogNavigation();
-    initializeCategoryNavigation();
-    initializeAdSpace();
-    
-    // Add loading animation to images
-    const images = document.querySelectorAll('svg');
-    images.forEach(img => {
-        img.style.opacity = '0';
-        img.style.transition = 'opacity 0.3s ease';
+    // Category navigation
+    function initializeCategoryNavigation() {
+        const categoryLinks = document.querySelectorAll('.nav-link');
         
+        categoryLinks.forEach(link => {
+            if (link.getAttribute('href').startsWith('#') && 
+                ['#eating', '#wearing', '#family'].includes(link.getAttribute('href'))) {
+                
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const category = link.textContent;
+                    showCategoryPage(category);
+                });
+            }
+        });
+    }
+    
+    function showCategoryPage(category) {
+        // Simulate showing category-specific content
+        const heroTitle = document.querySelector('.hero-title');
+        const heroSubtitle = document.querySelector('.hero-subtitle');
+        const originalTitle = heroTitle.textContent;
+        const originalSubtitle = heroSubtitle.textContent;
+        
+        // Temporarily update hero section
+        heroTitle.textContent = category;
+        heroSubtitle.textContent = `Explore ${category.toLowerCase()} content`;
+        
+        // Scroll to featured posts
+        document.querySelector('.featured-posts').scrollIntoView({ behavior: 'smooth' });
+        
+        // Reset after 3 seconds (in real implementation, this would be a proper page)
         setTimeout(() => {
-            img.style.opacity = '1';
-        }, 100);
-    });
+            heroTitle.textContent = originalTitle;
+            heroSubtitle.textContent = originalSubtitle;
+            showNotification(`In a full implementation, this would show ${category} posts`, 'success');
+        }, 3000);
+    }
+    
+    
+    
+    // Initialize all functionality when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeBlogNavigation();
+        initializeCategoryNavigation();
+    
+
 });
 
 // Handle window resize
